@@ -1,62 +1,45 @@
 package com.template;
 
+import static android.content.Intent.*;
 import androidx.appcompat.app.AppCompatActivity;
-
+import androidx.browser.customtabs.CustomTabsIntent;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.content.SharedPreferences;
-import android.os.Build;
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.webkit.WebResourceRequest;
-
-import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.TextView;
 
 public class WebActivity extends AppCompatActivity {
-    WebView webActivity;
     TextView textView;
-                            //класс Preferences для работы с данными
 
     @SuppressLint("MissingInflatedId")
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web);
 
-        webActivity = findViewById(R.id.webView);
         textView = findViewById(R.id.webText);
-      //   String urlWeb = getIntent().getExtras().getString("url");
-        // String urlWeb = (String) getIntent().getSerializableExtra("url");
-     //   textView.setText(urlWeb);
-       /* WebSettings webSettings = webActivity.getSettings();
-        String userAgent = String.format("%s [%s/%s]", webSettings.getUserAgentString(), "App Android", BuildConfig.VERSION_NAME);
-        webActivity.getSettings().setUserAgentString(userAgent);
-        webActivity.loadUrl(urlWeb);*/                // указываем страницу загрузки
+        String urlWeb = (String) getIntent().getSerializableExtra("url");
 
-        webActivity.getSettings().setJavaScriptEnabled(true);         // включаем поддержку JavaScript
-        webActivity.getSettings().setDomStorageEnabled(true);
-        webActivity.getSettings().setUserAgentString("example_android_app");
-        webActivity.setWebViewClient(webClient());                    // передаём в WebView
-        webActivity.loadUrl(getIntent().getDataString());
-
+        CustomTabsIntent.Builder customIntent = new CustomTabsIntent.Builder();
+        CustomTabsIntent customBuild = customIntent.build();
+        //customBuild.launchUrl(this, Uri.parse(String.valueOf(urlWeb)));
+         openCustomTubs(WebActivity.this, customBuild, Uri.parse(urlWeb));
+        // textView.setText(response.toString());
     }
-
-    public WebViewClient webClient(){                                     //открытие ссылки внутри приложения
-        WebViewClient webViewClient = new WebViewClient() {
-            @SuppressWarnings("deprecation") @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                view.loadUrl(url);
-                return true;
-            }
-            @TargetApi(Build.VERSION_CODES.N) @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                view.loadUrl(request.getUrl().toString());
-                return true;
-            }
-        };
-        return webViewClient;
+    public static void openCustomTubs (Activity activity, CustomTabsIntent customTabsIntent, Uri uri){
+        String packageName = "com.android.chrome";
+        if (packageName != null) {
+            customTabsIntent.intent.setPackage(packageName);
+            customTabsIntent.launchUrl(activity,uri);
+        }
+        else {
+            activity.startActivities(new Intent[]{new Intent(ACTION_VIEW, uri)});
+        }
+    }
+}
     }
 
 
